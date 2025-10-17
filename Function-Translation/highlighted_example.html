@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      media="(prefers-color-scheme:light)"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css"
+    />
+    <link
+      rel="stylesheet"
+      media="(prefers-color-scheme:dark)"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/dark.css"
+      onload="document.documentElement.classList.add('sl-theme-dark');"
+    />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"
+    ></script>
+    <style>
+      :root {
+        font-family: var(--sl-font-sans);
+      }
+
+      .container {
+        width: 80%;
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      .code {
+        font-family: var(--sl-font-mono);
+        font-size: var(--sl-font-size-large);
+        border-radius: var(--sl-border-radius-medium);
+        padding: var(--sl-spacing-medium);
+        overflow: hidden;
+      }
+
+      .line {
+        width: max-content;
+        margin-top: var(--sl-spacing-2x-small);
+      }
+
+      :not(:defined) {
+        visibility: hidden;
+      }
+    </style>
+    <title>Chapter 9 Examples</title>
+  </head>
+
+  <body>
+    <sl-tab-group>
+      <sl-tab slot="nav" panel="call-elem">Function call elements</sl-tab>
+      <sl-tab slot="nav" panel="full-example">Everything together</sl-tab>
+
+      <sl-tab-panel
+        name="call-elem"
+        style="margin: var(--sl-spacing-small); margin-top: auto"
+      >
+        <h1>Elements of function call translation</h1>
+        <p>
+          Click on a section of code to see more information on what it does.
+          <br />
+          Hovering over a line will highlight any related lines. This could be
+          the corresponding translation lines or any other lines that are
+          important for it to function.
+        </p>
+        <p>
+          SP := Stack Pointer <br />
+          SOI := Size Of Integer in bytes <br />
+          n := number of input parameters <br />
+          k := number of registers
+        </p>
+        <sl-divider></sl-divider>
+        <h2>Call Sequence</h2>
+        <h3>Caller Save:</h3>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <sl-tooltip
+              content="Function call in intermediary code"
+              placement="right"
+            >
+              <span class="line"
+                ><span id="call_returnvalue">x :=</span>
+                <span id="call_name">g</span> (
+                <span id="call_params">a1 , ... , an</span> )</span
+              >
+            </sl-tooltip>
+          </div>
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+              overflow: hidden;
+            "
+          >
+            <!-- current register values saved -->
+            <sl-tooltip
+              content="Saves current register values on the stack (we assume that the current executing function has made enough space to store them)"
+              placement="right"
+            >
+              <span id="call_saving_registers">
+                <span class="line">M[SP] := R0</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">M[SP + SOI * k] := Rk</span>
+              </span>
+            </sl-tooltip>
+            <!-- move the stack pointer along past the saved register values (but we saved them above it and now we're moving down again? shouldn't we have done this before as well?) -->
+            <!-- moving the stack pointer down (-) will make more space above it -->
+            <sl-tooltip
+              content="Moves the stack pointer down; making space to store the input parameters and return address."
+              placement="right"
+            >
+              <span id="call_moving_sp" class="line"
+                >SP := SP - SOI * (n + 1)</span
+              >
+            </sl-tooltip>
+            <!-- prepare to send over the input parameters by saving them to the stack -->
+            <sl-tooltip
+              content="Saves the input parameters for the function call to the stack."
+              placement="right"
+            >
+              <span id="_call_params">
+                <span class="line">M[SP + SOI] := a1</span> <br />
+                <span class="line">...</span><br />
+                <span class="line">M[SP + SOI * n] := an</span><br />
+              </span>
+            </sl-tooltip>
+            <!-- save the return address -->
+            <sl-tooltip
+              content="Saves an address to continue executing on when we return from the function."
+              placement="right"
+            >
+              <span id="call_returnaddress" class="line"
+                >M[SP] := returnaddress</span
+              >
+            </sl-tooltip>
+            <!-- execute the code of the function, the input parameters will be found on the stack -->
+            <sl-tooltip
+              content="Jump to the function's code."
+              placement="right"
+            >
+              <span id="_call_name" class="line">GOTO g</span>
+            </sl-tooltip>
+            <!-- when the function ends, this is where execution will continue -->
+            <sl-tooltip
+              content="This is where execution continues after the function returns"
+              placement="right"
+            >
+              <span id="_call_returnaddress" class="line"
+                >LABEL returnaddress</span
+              >
+            </sl-tooltip>
+            <!-- fetch the return value -->
+            <sl-tooltip
+              content="Retrieves the return value of the function from the stack. Note that it is at the same place as the first input parameter was."
+              placement="right"
+            >
+              <span id="_call_returnvalue" class="line">x := M[SP + SOI]</span>
+            </sl-tooltip>
+            <!-- move the stack pointer up, we don't need the return value there anymore, this also aligns us for the next step -->
+            <sl-tooltip
+              content="Move the stack pointer back up; we don't need the input parameters anymore."
+              placement="right"
+            >
+              <span id="_call_moving_sp" class="line"
+                >SP := SP + SOI * (n + 1)</span
+              >
+            </sl-tooltip>
+            <!-- fetch the saved register values from the stack before we continue to execute -->
+            <sl-tooltip
+              content="Here we retrieve the old register values to continue with the program."
+              placement="right"
+            >
+              <span id="_call_saving_registers">
+                <span class="line">R0 := M[SP]</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">Rk := M[SP + SOI * k]</span> <br />
+              </span>
+            </sl-tooltip>
+          </div>
+        </sl-split-panel>
+
+        <h3>Callee Save:</h3>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <sl-tooltip
+              content="Function call in intermediary code"
+              placement="right"
+            >
+              <span class="line"
+                ><span id="callee_returnvalue">x :=</span>
+                <span id="callee_name"> g</span> (
+                <span id="callee_params">a1 , ... , an</span> )</span
+              >
+            </sl-tooltip>
+          </div>
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+              overflow: hidden;
+            "
+          >
+            <!-- current register values saved by function that is called-->
+            <!-- move the stack pointer along past the saved register values (but we saved them above it and now we're moving down again? shouldn't we have done this before as well?) -->
+            <!-- moving the stack pointer down (-) will make more space above it -->
+            <sl-tooltip
+              content="Moves the stack pointer down; making space to store the input parameters.
+              We assume the current register values will be stored by the function we call."
+              placement="right"
+            >
+              <span id="callee_moving_sp" class="line"
+                >SP := SP - SOI * (n + 1)</span
+              >
+            </sl-tooltip>
+            <!-- prepare to send over the input parameters by saving them to the stack -->
+            <sl-tooltip
+              content="Saves the input parameters for the function call to the stack."
+              placement="right"
+            >
+              <span id="_callee_params">
+                <span class="line">M[SP + SOI] := a1</span> <br />
+                <span class="line">...</span><br />
+                <span class="line">M[SP + SOI * n] := an</span><br />
+              </span>
+            </sl-tooltip>
+            <!-- save the return address -->
+            <sl-tooltip
+              content="Saves an address to continue executing on when we return from the function."
+              placement="right-end"
+            >
+              <span id="callee_returnaddress" class="line"
+                >M[SP] := returnaddress</span
+              >
+            </sl-tooltip>
+            <!-- execute the code of the function, the input parameters will be found on the stack -->
+            <sl-tooltip
+              content="Jump to the function's code."
+              placement="right"
+            >
+              <span id="_callee_name" class="line">GOTO g</span>
+            </sl-tooltip>
+            <!-- when the function ends, this is where execution will continue -->
+            <sl-tooltip
+              content="This is where execution continues after the function returns"
+              placement="right"
+            >
+              <span id="_callee_returnaddress" class="line"
+                >LABEL returnaddress</span
+              >
+            </sl-tooltip>
+            <!-- fetch the return value -->
+            <sl-tooltip
+              content="Retrieves the return value of the function from the stack, same position as where we found the first input parameter."
+              placement="right"
+            >
+              <span id="_callee_returnvalue" class="line"
+                >x := M[SP + SOI]</span
+              >
+            </sl-tooltip>
+            <!-- move the stack pointer up, we don't need the return value there anymore, this also aligns us for the next step -->
+            <sl-tooltip
+              content="Move the stack pointer back up; we don't need the input parameters anymore, and we assume the old register values are ready to use again."
+              placement="right"
+            >
+              <span id="_callee_moving_sp" class="line"
+                >SP := SP + SOI * (n + 1)</span
+              >
+            </sl-tooltip>
+          </div>
+        </sl-split-panel>
+
+        <sl-divider></sl-divider>
+
+        <h2>Function Prologue and Epilogue</h2>
+        <p>
+          In these examples, the framesize variable is equal to the number of
+          bytes used to store the return address and any local variables that
+          will be used in the function.
+        </p>
+        <p>
+          SP := Stack Pointer <br />
+          SOI := Size Of Integer in bytes <br />
+          m := number of input parameters <br />
+          k := number of registers
+        </p>
+        <h3>Caller save:</h3>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <div class="code" style="display: grid">
+              <span class="line"
+                ><span id="_callr_label">f</span> (
+                <span id="_callr_input">p1 , ... , pn</span> )</span
+              >
+              <span class="line">{</span>
+              <span id="_callr_logic">
+                <span class="line">&nbsp&nbsp ...</span> <br />
+                <span class="line">&nbsp&nbsp ...</span> <br />
+              </span>
+              <span class="line"
+                >&nbsp&nbsp <span id="_callr_return">return x</span></span
+              >
+              <span class="line">}</span>
+            </div>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <!-- jump to the function label here -->
+            <sl-tooltip
+              content="Jump here when the function is called."
+              placement="right"
+            >
+              <span id="callr_label" class="line">LABEL f</span>
+            </sl-tooltip>
+            <!-- retrieve the input parameters -->
+            <sl-tooltip
+              content="Retrieves the input parameter values that were saved on the stack by the caller function."
+              placement="right"
+            >
+              <span id="callr_input">
+                <span class="line">p1 := M[SP + SOI]</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">pn := M[SP + SOI * n]</span> <br />
+              </span>
+            </sl-tooltip>
+            <!-- adjust the stack pointer;  -->
+            <sl-tooltip
+              content="Makes space on the stack for storing local function variables."
+              placement="right"
+            >
+              <span id="callr_stackframe" class="line"
+                >SP := SP - framesize</span
+              >
+            </sl-tooltip>
+
+            <span class="line">&nbsp;</span>
+            <!-- function operations -->
+            <sl-tooltip
+              content="This is where the function's logic will execute."
+              placement="right"
+            >
+              <span id="callr_logic">
+                <span class="line">...</span> <br />
+                <span class="line">...</span> <br />
+              </span>
+            </sl-tooltip>
+            <span class="line">&nbsp;</span>
+
+            <!-- done with function operations, adjust stack pointer -->
+            <sl-tooltip
+              content="Local function variables are no longer needed, we can adjust the stack pointer back to where it was before."
+              placement="left"
+            >
+              <span id="_callr_stackframe" class="line"
+                >SP := SP + framesize</span
+              >
+            </sl-tooltip>
+            <!-- store the resulting variable -->
+            <sl-tooltip
+              content="This line stores the return variable where the first parameter was on the stack."
+              placement="right"
+            >
+              <span id="callr_return" class="line">M[SP + SOI] := x</span>
+            </sl-tooltip>
+            <!-- retrieve the return address and jump back to the previous execution sequence -->
+            <sl-tooltip
+              content="The return address should now be at the top of the stack; we first retrieve it and then jump to the address it holds."
+              placement="right"
+            >
+              <span>
+                <span id="callr_returnaddr" class="line"
+                  >returnaddress := M[SP]</span
+                >
+                <br />
+                <span id="_callr_returnaddr" class="line"
+                  >GOTO returnaddress</span
+                >
+                <br />
+              </span>
+            </sl-tooltip>
+          </div>
+        </sl-split-panel>
+        <h3>Callee save:</h3>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <div class="code" style="display: grid">
+              <span class="line"
+                ><span id="_calle_label">f</span> (
+                <span id="_calle_params">p1 , ... , pn</span> )</span
+              >
+              <span class="line">{</span>
+              <span id="_calle_logic">
+                <span class="line">&nbsp&nbsp ...</span> <br />
+                <span class="line">&nbsp&nbsp ...</span> <br />
+              </span>
+              <span class="line"
+                >&nbsp&nbsp <span id="_calle_return">return x</span></span
+              >
+              <span class="line">}</span>
+            </div>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <!-- differs a fair bit from the textbook example -->
+            <!-- this way we move the SP similarly to how it is done in the function call examples: -->
+            <sl-tooltip
+              content="Jump here when the function is called."
+              placement="right"
+            >
+              <span id="calle_label" class="line">LABEL f</span>
+            </sl-tooltip>
+            <!-- stack pointer adjustment to store registers -->
+            <sl-tooltip
+              content="This line moves the stack pointer to make space for storing the register values."
+              placement="right"
+            >
+              <span id="calle_regalloc" class="line"
+                >SP := SP - SOI * (k + 1)</span
+              >
+            </sl-tooltip>
+            <!-- storing registers -->
+            <sl-tooltip
+              content="Stores the old register values. We save these first so that we can start using registers immediately."
+              placement="right"
+            >
+              <span id="calle_registers">
+                <span class="line">M[SP] := R0</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">M[SP + SOI * k] := Rk</span> <br />
+              </span>
+            </sl-tooltip>
+
+            <!-- retrieve all the incoming parameters (they are above the saved register values) -->
+            <!-- we saved the register values first because we might use them to contain the parameters -->
+            <sl-tooltip
+              content="Retrieves the input parameter values that were saved on the stack by the caller function."
+              placement="right"
+            >
+              <span id="calle_params">
+                <span class="line">p1 := M[SP + SOI * k + SOI * 1]</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">pn := M[SP + SOI * k + SOI * n]</span> <br />
+              </span>
+            </sl-tooltip>
+
+            <!-- adjust the SP for main function execution -->
+            <sl-tooltip
+              content="Makes space on the stack for storing local function variables."
+              placement="right"
+            >
+              <span id="calle_stackframe" class="line"
+                >SP := SP - framesize</span
+              >
+            </sl-tooltip>
+
+            <span class="line">&nbsp;</span>
+            <sl-tooltip
+              content="This is where the function's logic will execute."
+              placement="right"
+            >
+              <span id="calle_logic">
+                <span class="line">...</span> <br />
+                <span class="line">...</span> <br />
+              </span>
+            </sl-tooltip>
+            <span class="line">&nbsp;</span>
+
+            <!-- main function execution complete, adjust SP -->
+            <sl-tooltip
+              content="Local function variables are no longer needed, we can adjust the stack pointer accordingly to prepare for the next step."
+              placement="left"
+            >
+              <span id="_calle_stackframe" class="line"
+                >SP := SP + framesize</span
+              >
+            </sl-tooltip>
+
+            <!-- put the output variable where the first parameter is -->
+            <sl-tooltip
+              content="This line stores the return variable where the first parameter was on the stack."
+              placement="right"
+            >
+              <span id="calle_return" class="line"
+                >M[SP + SOI * k + SOI * 1] := x</span
+              >
+            </sl-tooltip>
+
+            <!-- retrieving register values -->
+            <sl-tooltip
+              content="Retrieves the old register values"
+              placement="right"
+            >
+              <span id="_calle_registers">
+                <span class="line">R0 := M[SP]</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">Rk := M[SP + SOI * k]</span> <br />
+              </span>
+            </sl-tooltip>
+            <!-- stack pointer adjustment after retrieving registers -->
+            <sl-tooltip
+              content="Old register values are no longer needed; move the stack pointer back up."
+              placement="right"
+            >
+              <span id="_calle_regalloc" class="line"
+                >SP := SP + SOI * (k + 1)</span
+              >
+            </sl-tooltip>
+
+            <!-- Our return address should now be at the top of the stack; we use it to return to the previous function. -->
+            <sl-tooltip
+              content="The return address should now be at the top of the stack; we first retrieve it and then jump to the address it holds."
+              placement="right"
+            >
+              <span>
+                <span id="calle_returnaddr" class="line"
+                  >returnaddress := M[SP]</span
+                >
+                <br />
+                <span id="_calle_returnaddr" class="line"
+                  >GOTO returnaddress</span
+                >
+                <br />
+              </span>
+            </sl-tooltip>
+          </div>
+        </sl-split-panel>
+        <sl-divider></sl-divider>
+      </sl-tab-panel>
+
+      <sl-tab-panel
+        name="full-example"
+        style="margin: var(--sl-spacing-small); margin-top: auto"
+      >
+        <h1>Full function translation example to intermediary code</h1>
+        <p>
+          Hover over a section of code to see more information on what it does.
+          <br />
+          These examples make use of the caller-save register saving strategy.
+          <br />
+
+          Named variables will be substituted with variables named vX where X is
+          a number incremented for each new variable created starting at 0, and
+          the corresponding name will be stored in a symbol table. <br />
+
+          Temporary variables for internal use will be named tX where X is a
+          number incremented for each new variable we create, starting at 0.
+          <br />
+
+          New internal labels will be named LX where X is a number incremented
+          for each new variable we create, starting at 0.
+        </p>
+        <p>
+          <sl-switch id="colour_switch" style="--thumb-size: 16px"
+            >Colour Coded Variables</sl-switch
+          >
+        </p>
+        <sl-divider></sl-divider>
+        <h2>Main function:</h2>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <div>
+              <span id="main_header" class="line">main ( )</span> <br />
+              <span class="line">{</span> <br />
+              <span id="main_input1" class="line"
+                >&nbsp;&nbsp;<span class="var_v0">input1</span> := 6 ;</span
+              >
+              <br />
+              <span id="main_input2" class="line"
+                >&nbsp;&nbsp;<span class="var_v1">input2</span> := 15 ;</span
+              >
+              <br />
+              <br />
+
+              <span id="main_call" class="line"
+                >&nbsp;&nbsp;<span id="main_result"
+                  ><span class="var_v2">result</span> :=</span
+                >
+                <span id="main_dispatch">euclid</span> (
+                <span id="main_params"
+                  ><span class="var_v0">input1</span> ,
+                  <span class="var_v1">input2</span></span
+                >
+                ) ;</span
+              ><br />
+              <span class="line">}</span>
+            </div>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span id="_main_header" class="line">LABEL main</span>
+            <span id="_main_input1">
+              <span class="line">t0 := 6</span> <br />
+              <span class="line"><span class="var_v0">v0</span> := t0</span>
+            </span>
+            <span id="_main_input2">
+              <span class="line">t1 := 15</span> <br />
+              <span class="line"><span class="var_v1">v1</span> := t1</span>
+            </span>
+
+            <!-- save register values -->
+            <sl-tooltip
+              content="Saves current register values on the stack (we assume that the currently executing function has made enough space to store them)"
+              placement="right"
+            >
+              <span id="main_saving_registers">
+                <span class="line">M[SP] := R0</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">M[SP + SOI * k] := Rk</span>
+              </span>
+            </sl-tooltip>
+
+            <span id="_main_call">
+              <sl-tooltip
+                content="Moves the stack pointer down; making space to store the input parameters and return address."
+                placement="right"
+              >
+                <span id="main_moving_sp" class="line">SP := SP - SOI * 3</span>
+                <br />
+              </sl-tooltip>
+              <!-- prepare to send over the input parameters by saving them to the stack -->
+              <sl-tooltip
+                content="Saves the input parameters for the function call to the stack."
+                placement="right"
+              >
+                <span id="_main_params">
+                  <span class="line"
+                    >M[SP + SOI] := <span class="var_v0">v0</span></span
+                  >
+                  <br />
+                  <span class="line"
+                    >M[SP + SOI * 2] := <span class="var_v1">v1</span></span
+                  ><br />
+                </span>
+              </sl-tooltip>
+              <!-- save the return address -->
+              <sl-tooltip
+                content="Saves an address to continue executing on when we return from the function."
+                placement="right"
+              >
+                <span id="main_returnaddress" class="line">M[SP] := L0</span>
+                <br />
+              </sl-tooltip>
+              <!-- execute the code of the function, the input parameters will be found on the stack -->
+              <sl-tooltip
+                content="Jump to the function's code."
+                placement="right"
+              >
+                <span id="_main_dispatch" class="line">GOTO euclid</span> <br />
+              </sl-tooltip>
+              <!-- when the function ends, this is where execution will continue -->
+              <sl-tooltip
+                content="This is where execution continues after the function returns"
+                placement="right"
+              >
+                <span id="_main_returnaddress" class="line">LABEL L0</span>
+                <br />
+              </sl-tooltip>
+              <!-- fetch the return value -->
+              <span class="line">t2 := M[SP + SOI]</span> <br />
+              <!-- move the stack pointer up, we don't need the return value there anymore, this also aligns us for the next step -->
+              <sl-tooltip
+                content="Move the stack pointer back up; we don't need the input parameters anymore."
+                placement="right"
+              >
+                <span id="_main_moving_sp" class="line"
+                  >SP := SP + SOI * 3</span
+                >
+                <br />
+              </sl-tooltip>
+            </span>
+            <!-- fetch the saved register values from the stack before we continue to execute -->
+            <sl-tooltip
+              content="Here we retrieve the old register values to continue with the program."
+              placement="right"
+            >
+              <span id="_main_saving_registers">
+                <span class="line">R0 := M[SP]</span> <br />
+                <span class="line">...</span> <br />
+                <span class="line">Rk := M[SP + SOI * k]</span> <br />
+              </span>
+            </sl-tooltip>
+            <sl-tooltip
+              content="Retrieves the return value of the function from the stack. Note that it is retrieved from the same place as the first input parameter was."
+              placement="right"
+            >
+              <span id="_main_result">
+                <span class="line"><span class="var_v2">v2</span> := t2</span>
+                <br />
+              </span>
+            </sl-tooltip>
+          </div>
+        </sl-split-panel>
+        <p>This main function is used to call the functions defined below</p>
+        <sl-divider></sl-divider>
+        <h2>Helper function:</h2>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <div>
+              <span class="line"
+                ><span id="subtract_header">subtract</span> (
+                <span id="subtract_param1"
+                  >number <span class="var_v3">param1</span></span
+                >
+                ,
+                <span id="subtract_param2"
+                  >number <span class="var_v4">param2</span></span
+                >
+                )</span
+              >
+              <br />
+              <span class="line">{</span> <br />
+              <span id="subtract_localvar" class="line"
+                >&nbsp;&nbsp;number <span class="var_v5">localVar</span> ;</span
+              >
+              <br />
+              <span id="subtract_body_code" class="line"
+                >&nbsp;&nbsp;<span class="var_v5">localVar</span> :=
+                <span class="var_v3">param1</span> -
+                <span class="var_v4">param2</span> ;</span
+              >
+              <br />
+              <br />
+              <span id="subtract_return" class="line"
+                >&nbsp;&nbsp;return <span class="var_v5">localVar</span> ;</span
+              >
+              <br />
+              <span class="line">}</span>
+            </div>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span id="_subtract_header" class="line">LABEL subtract</span>
+
+            <span id="_subtract_param1" class="line"
+              ><span class="var_v3">v3</span> := M[SP + SOI]</span
+            >
+            <span id="_subtract_param2" class="line"
+              ><span class="var_v4">v4</span> := M[SP + SOI * 2]</span
+            >
+
+            <span id="subtract_stackframe" class="line"
+              >SP := SP - framesize</span
+            >
+
+            <span id="_subtract_localvar" class="line"
+              ><span class="var_v5">v5</span> := 0</span
+            >
+
+            <span id="_subtract_body_code">
+              <span class="line"
+                >t3 := <span class="var_v3">v3</span> -
+                <span class="var_v4">v4</span></span
+              >
+              <br />
+              <span class="line"><span class="var_v5">v5</span> := t3</span>
+              <br />
+            </span>
+
+            <span id="_subtract_stackframe" class="line"
+              >SP := SP + framesize</span
+            >
+
+            <span id="_subtract_return">
+              <span class="line"
+                >M[SP + SOI] := <span class="var_v5">v5</span></span
+              >
+              <br />
+
+              <span class="line">returnaddress := M[SP]</span> <br />
+              <span class="line">GOTO returnaddress</span>
+            </span>
+          </div>
+        </sl-split-panel>
+
+        <sl-divider></sl-divider>
+        <h2>Iterative Euclid function:</h2>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span class="line">
+              <span id="euclid_header">euclid</span> (
+              <span id="euclid_paramA"
+                >number <span class="var_v6">paramA</span></span
+              >
+              ,
+              <span id="euclid_paramB"
+                >number <span class="var_v7">paramB</span></span
+              >
+              )</span
+            >
+            <span class="line">{</span>
+            <span class="line"
+              >&nbsp;&nbsp;<span id="euclid_localvar"
+                >number <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+
+            <span class="line"
+              >&nbsp;&nbsp;<span id="euclid_if1"
+                >if ( <span class="var_v6">paramA</span> = 0 )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_if1_t6"
+                ><span class="var_v8">localVar</span> =
+                <span class="var_v7">paramB</span></span
+              >
+              ;</span
+            >
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_if1_return"
+                >return <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+            <span class="line">&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;<span id="euclid_else1">else</span></span
+            >
+            <span class="line">&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_while"
+                >while ( <span class="var_v7">paramB</span> != 0 )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_if2"
+                >if ( <span class="var_v6">paramA</span> >
+                <span class="var_v7">paramB</span> )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="euclid_if2_assign"
+                ><span class="var_v6">paramA</span></span
+              >
+              := <span id="euclid_if2_call">subtract</span> (
+              <span id="euclid_if2_call_params"
+                ><span class="var_v6">paramA</span> ,
+                <span class="var_v7">paramB</span></span
+              >
+              ) ;</span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_else2"
+                >else</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="euclid_else2_assign"
+                ><span class="var_v7">paramB</span></span
+              >
+              := <span id="euclid_else2_call">subtract</span> (
+              <span id="euclid_else2_call_params"
+                ><span class="var_v7">paramB</span>,
+                <span class="var_v6">paramA</span></span
+              >
+              ) ;</span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="euclid_else1_assign"
+                ><span class="var_v8"></span> :=
+                <span class="var_v6">paramA</span></span
+              >
+              ;</span
+            >
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="euclid_else1_return"
+                >return <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;}</span>
+            <span class="line">}</span>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span id="_euclid_header" class="line">LABEL euclid</span>
+            <span id="_euclid_paramA" class="line"
+              ><span class="var_v6">v6</span> := M[SP + SOI]</span
+            >
+            <span id="_euclid_paramB" class="line"
+              ><span class="var_v7">v7</span> := M[SP + SOI * 2]</span
+            >
+            <span id="euclid_stackframe" class="line"
+              >SP := SP - framesize</span
+            >
+
+            <span id="_euclid_localvar" class="line"
+              ><span class="var_v8">v8</span> := 0</span
+            >
+
+            <span id="_euclid_if1">
+              <span class="line">t4 := <span class="var_v6">v6</span></span>
+              <br />
+              <span class="line">t5 := 0</span> <br />
+              <span class="line">IF t4 = t5</span> <br />
+              <span class="line">THEN L1</span> <br />
+              <span class="line">ELSE L2</span> <br />
+
+              <span class="line">LABEL L1</span>
+            </span>
+            <span id="_euclid_if1_t6">
+              <span class="line"
+                >&nbsp;t6 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;<span class="var_v8">v8</span> := t6</span
+              >
+            </span>
+            <span id="_euclid_if1_return">
+              <span class="line">&nbsp;SP := SP + framesize</span> <br />
+              <span class="line"
+                >&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line">&nbsp;returnaddress := M[SP]</span> <br />
+              <span class="line">&nbsp;GOTO returnaddress</span>
+            </span>
+            <span class="line">GOTO L3</span>
+
+            <span id="_euclid_else1" class="line">LABEL L2</span>
+            <span id="_euclid_while">
+              <span class="line">&nbsp;LABEL L4</span> <br />
+              <span class="line"
+                >&nbsp;t7 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line">&nbsp;t8 := 0</span> <br />
+              <span class="line">&nbsp;IF t7 != t8</span> <br />
+              <span class="line">&nbsp;THEN L5</span> <br />
+              <span class="line">&nbsp;ELSE L6</span> <br />
+              <span class="line">&nbsp;LABEL L5</span> <br />
+            </span>
+
+            <span id="_euclid_if2">
+              <span class="line"
+                >&nbsp;&nbsp;t9 := <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;t10 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line">&nbsp;&nbsp;IF t9 > t10</span> <br />
+              <span class="line">&nbsp;&nbsp;THEN L7</span> <br />
+              <span class="line">&nbsp;&nbsp;ELSE L8</span> <br />
+              <span class="line">&nbsp;&nbsp;LABEL L7</span>
+            </span>
+
+            <span id="euclid_if2_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+            <span id="_euclid_if2_call_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+            </span>
+            <span id="_euclid_if2_call">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L10</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L10</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t11 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+            <span id="_euclid_if2_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+            <span id="_euclid_if2_assign" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v6">v6</span> := t11</span
+            >
+            <span class="line">&nbsp;&nbsp;GOTO L9</span>
+            <span id="_euclid_else2" class="line">&nbsp;&nbsp;LABEL L8</span>
+            <span id="euclid_else2_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+            <span id="_euclid_else2_call_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+            </span>
+            <span id="_euclid_else2_call">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L11</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L11</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t12 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+            <span id="_euclid_else2_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+            <span id="_euclid_else2_assign" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v7">v7</span> := t12</span
+            >
+            <span class="line">&nbsp;&nbsp;LABEL L9</span>
+            <span id="_euclid_else1_assign">
+              <span class="line"
+                >&nbsp;&nbsp;t13 := <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;<span class="var_v8">v8</span> := t13</span
+              >
+              <br />
+            </span>
+            <span id="_euclid_else1_return">
+              <span class="line">&nbsp;&nbsp;SP := SP + framesize</span> <br />
+              <span class="line"
+                >&nbsp;&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line">&nbsp;&nbsp;returnaddress := M[SP]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;GOTO returnaddress</span> <br />
+            </span>
+            <span class="line">&nbsp;GOTO L4</span>
+            <span class="line">&nbsp;LABEL L6</span>
+            <span class="line">LABEL L3</span>
+          </div>
+        </sl-split-panel>
+        <sl-divider></sl-divider>
+        <h2>Recursive Euclid function:</h2>
+        <sl-split-panel class="container">
+          <div
+            slot="start"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span class="line"
+              ><span id="reuclid_header">euclid</span> (
+              <span id="reuclid_paramA"
+                >number <span class="var_v6">paramA</span></span
+              >
+              ,
+              <span id="reuclid_paramB"
+                >number <span class="var_v7">paramB</span></span
+              >
+              )</span
+            >
+            <span class="line">{</span>
+            <span class="line"
+              >&nbsp;&nbsp;<span id="reuclid_localvar"
+                >number <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+
+            <span class="line"
+              >&nbsp;&nbsp;<span id="reuclid_if1"
+                >if ( <span class="var_v7">paramB</span> = 0 )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if1_t6"
+                ><span class="var_v8">localVar</span> :=
+                <span class="var_v6">paramA</span></span
+              >
+              ;</span
+            >
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if1_return"
+                >return <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+            <span class="line">&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;<span id="reuclid_else1">else</span></span
+            >
+            <span class="line">&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_while"
+                >while ( <span class="var_v7">paramB</span> != 0 )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if2"
+                >if ( <span class="var_v6">paramA</span> >
+                <span class="var_v7">paramB</span> )</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="reuclid_if2_assign_sub"
+                ><span class="var_v8">localVar</span></span
+              >
+              = <span id="reuclid_if2_sub">subtract</span> (
+              <span id="reuclid_if2_sub_params"
+                ><span class="var_v6">paramA</span> ,
+                <span class="var_v7">paramB</span></span
+              >
+              ) ;</span
+            >
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="reuclid_if2_assign_euclid"
+                ><span class="var_v8">localVar</span></span
+              >
+              = <span id="reuclid_if2_euclid">euclid</span> (
+              <span id="reuclid_if2_euclid_params"
+                ><span class="var_v8">localVar</span> ,
+                <span class="var_v7">paramB</span></span
+              >
+              ) ; // recursive call</span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else2"
+                >else</span
+              ></span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="reuclid_else2_assign_sub"
+                ><span class="var_v8">localVar</span></span
+              >
+              = <span id="reuclid_else2_sub">subtract</span> (
+              <span id="reuclid_else2_sub_params"
+                ><span class="var_v7">paramB</span> ,
+                <span class="var_v6">paramA</span></span
+              >
+              ) ;</span
+            >
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="reuclid_else2_assign_euclid"
+                ><span class="var_v8">localvar</span></span
+              >
+              = <span id="reuclid_else2_euclid">euclid</span> (
+              <span id="reuclid_else2_euclid_params"
+                ><span class="var_v6">paramA</span> ,
+                <span class="var_v8">localVar</span></span
+              >
+              ) ; // recursive call</span
+            >
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else1_return"
+                >return <span class="var_v8">localVar</span></span
+              >
+              ;</span
+            >
+            <span class="line">&nbsp;&nbsp;}</span>
+
+            <span class="line">}</span>
+          </div>
+
+          <div
+            slot="end"
+            class="code"
+            style="
+              display: grid;
+              background: var(--sl-color-neutral-50);
+              align-items: center;
+            "
+          >
+            <span id="_reuclid_header" class="line">LABEL euclid</span>
+            <span id="_reuclid_paramA" class="line"
+              ><span class="var_v6">v6</span> := M[SP + SOI]</span
+            >
+            <span id="_reuclid_paramB" class="line"
+              ><span class="var_v7">v7</span> := M[SP + SOI * 2]</span
+            >
+            <span id="reuclid_stackframe" class="line"
+              >SP := SP - framesize</span
+            >
+
+            <span id="_reuclid_localvar" class="line"
+              ><span class="var_v8">v8</span> := 0</span
+            >
+
+            <span id="_reuclid_if1">
+              <span class="line">t4 := <span class="var_v6">v6</span></span>
+              <br />
+              <span class="line">t5 := 0</span> <br />
+              <span class="line">IF t4 = t5</span> <br />
+              <span class="line">THEN L1</span> <br />
+              <span class="line">ELSE L2</span> <br />
+
+              <span class="line">LABEL L1</span> <br />
+            </span>
+
+            <span id="_reuclid_if1_t6">
+              <span class="line"
+                >&nbsp;t6 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;<span class="var_v8">v8</span> := t6</span
+              >
+              <br />
+            </span>
+            <!-- TODO: real values for framesize? -->
+
+            <span id="_reuclid_if1_return">
+              <span class="line">&nbsp;SP := SP + framesize</span> <br />
+              <span class="line"
+                >&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line">&nbsp;returnaddress := M[SP]</span> <br />
+              <span class="line">&nbsp;GOTO returnaddress</span> <br />
+            </span>
+            <span class="line">GOTO L3</span>
+
+            <span id="_reuclid_else1" class="line">LABEL L2</span>
+
+            <span id="_reuclid_while">
+              <span class="line">&nbsp;LABEL L4</span> <br />
+              <span class="line"
+                >&nbsp;t7 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line">&nbsp;t8 := 0</span> <br />
+              <span class="line">&nbsp;IF t7 != t8</span> <br />
+              <span class="line">&nbsp;THEN L5</span> <br />
+              <span class="line">&nbsp;ELSE L6</span> <br />
+              <span class="line">&nbsp;LABEL L5</span> <br />
+            </span>
+
+            <span id="_reuclid_if2">
+              <span class="line"
+                >&nbsp;&nbsp;t9 := <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;t10 := <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line">&nbsp;&nbsp;IF t9 > t10</span> <br />
+              <span class="line">&nbsp;&nbsp;THEN L7</span> <br />
+              <span class="line">&nbsp;&nbsp;ELSE L8</span> <br />
+
+              <span class="line">&nbsp;&nbsp;LABEL L7</span> <br />
+            </span>
+
+            <span id="reuclid_if2_sub_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_sub_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+            </span>
+            <span id="_reuclid_if2_sub">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L10</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L10</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t11 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+            <span id="_reuclid_if2_sub_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+            <span id="_reuclid_if2_assign_sub" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t11</span
+            >
+            <br />
+            <!-- // recursive function call -->
+            <!-- saving variables and registers should be accounted for in framesize? TODO: check that -->
+            <span id="reuclid_if2_euclid_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+
+            <span id="reuclid_if2_euclid_vars">
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
+                <span class="var_v8">v8</span></span
+              >
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_euclid_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_euclid">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L11</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO euclid</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L11</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t12 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_euclid_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_euclid_vars">
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
+                * (k + 1)]</span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
+                * (k + 2)]</span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
+                * (k + 3)]</span
+              >
+              <br />
+            </span>
+
+            <span id="_reuclid_if2_assign_euclid" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t12</span
+            >
+            <span class="line">&nbsp;&nbsp;GOTO L9</span>
+            <span id="_reuclid_else2" class="line">&nbsp;&nbsp;LABEL L8</span>
+
+            <span id="reuclid_else2_sub_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+            <span id="_reuclid_else2_sub_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+            </span>
+            <span id="_reuclid_else2_sub">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L12</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L12</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t13 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+            <span id="_reuclid_else2_sub_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+            <span id="_reuclid_else2_assign_sub" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t13</span
+            >
+            <br />
+            <!-- // recursive function call -->
+            <span id="reuclid_else2_euclid_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <br />
+            </span>
+
+            <span id="reuclid_else2_euclid_vars">
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
+                <span class="var_v6">v6</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
+                <span class="var_v8">v8</span></span
+              >
+              <br />
+            </span>
+
+            <span id="_reuclid_else2_euclid_params">
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                <span class="var_v7">v7</span></span
+              >
+              <br />
+            </span>
+            <span id="_reuclid_else2_euclid">
+              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L13</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;GOTO euclid</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L13</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;t14 := M[SP + SOI]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <br />
+            </span>
+
+            <span id="_reuclid_else2_euclid_register">
+              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <br />
+            </span>
+            <span id="_reuclid_else2_euclid_vars">
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
+                * (k + 1)]</span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
+                * (k + 2)]</span
+              >
+              <br />
+              <span class="line"
+                >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
+                * (k + 3)]</span
+              >
+              <br />
+            </span>
+
+            <span id="_reuclid_else2_assign_euclid" class="line"
+              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t14</span
+            >
+            <span class="line">&nbsp;&nbsp;LABEL L9</span>
+            <span id="_reuclid_else1_return">
+              <span class="line">&nbsp;&nbsp;SP := SP + framesize</span> <br />
+              <span class="line"
+                >&nbsp;&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
+              >
+              <br />
+              <span class="line">&nbsp;&nbsp;returnaddress := M[SP]</span>
+              <br />
+              <span class="line">&nbsp;&nbsp;GOTO returnaddress</span> <br />
+            </span>
+            <span class="line">&nbsp;GOTO L4</span>
+            <span class="line">&nbsp;LABEL L6</span>
+            <span class="line">LABEL L3</span>
+          </div>
+        </sl-split-panel>
+        <sl-divider></sl-divider>
+        <!-- TODO: perhaps colour code these and where they are used in the examples -->
+        <h2>Symbol Table</h2>
+        <div style="width: 100%; align-items: center; justify-items: center">
+          <table style="width: 50%; text-align: center">
+            <tr>
+              <td><b>Internal Variable Name</b></td>
+              <td><b>Source Code Name</b></td>
+              <td><b>Function scope</b></td>
+            </tr>
+            <tr>
+              <td>v0</td>
+              <td>input1</td>
+              <td>main</td>
+            </tr>
+            <tr>
+              <td>v1</td>
+              <td>input2</td>
+              <td>main</td>
+            </tr>
+            <tr>
+              <td>v2</td>
+              <td>result</td>
+              <td>main</td>
+            </tr>
+            <tr>
+              <td>v3</td>
+              <td>param1</td>
+              <td>subtract</td>
+            </tr>
+            <tr>
+              <td>v4</td>
+              <td>param2</td>
+              <td>subtract</td>
+            </tr>
+            <tr>
+              <td>v5</td>
+              <td>localVar</td>
+              <td>subtract</td>
+            </tr>
+            <tr>
+              <td>v6</td>
+              <td>paramA</td>
+              <td>euclid</td>
+            </tr>
+            <tr>
+              <td>v7</td>
+              <td>paramB</td>
+              <td>euclid</td>
+            </tr>
+            <tr>
+              <td>v8</td>
+              <td>localVar</td>
+              <td>euclid</td>
+            </tr>
+          </table>
+        </div>
+      </sl-tab-panel>
+    </sl-tab-group>
+  </body>
+  <script>
+    // background then font color
+    const darkTheme =
+      document.documentElement.getAttribute("sl-theme") === "dark";
+    const highlighted = [
+      "var(--sl-color-primary-500)",
+      darkTheme ? "white" : "black",
+    ];
+    const unhighlighted = [
+      "transparent",
+      darkTheme ? "var(--sl-color-neutral-0)" : "var(--sl-color-neutral-1000)",
+    ];
+
+    // CALL SEQUENCE: CALLER SAVE ----------------------------------------------------------------------
+    // var call_params = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_params"),
+      document.getElementById("_call_params"),
+    ]);
+
+    // var call_name = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_name"),
+      document.getElementById("_call_name"),
+    ]);
+
+    // var call_returnvalue = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_returnvalue"),
+      document.getElementById("_call_returnvalue"),
+    ]);
+
+    // var call_returnaddress = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_returnaddress"),
+      document.getElementById("_call_returnaddress"),
+    ]);
+
+    // var call_moving_sp = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_moving_sp"),
+      document.getElementById("_call_moving_sp"),
+    ]);
+
+    // var call_saving_registers = ;
+    assignMouseOverAndOut([
+      document.getElementById("call_saving_registers"),
+      document.getElementById("_call_saving_registers"),
+    ]);
+    // CALL SEQUENCE: CALLER SAVE ----------------------------------------------------------------------
+
+    // CALL SEQUENCE: CALLEE SAVE ----------------------------------------------------------------------
+    // var callee_params = ;
+    assignMouseOverAndOut([
+      document.getElementById("callee_params"),
+      document.getElementById("_callee_params"),
+    ]);
+
+    // var callee_name = ;
+    assignMouseOverAndOut([
+      document.getElementById("callee_name"),
+      document.getElementById("_callee_name"),
+    ]);
+
+    // var callee_returnvalue = ;
+    assignMouseOverAndOut([
+      document.getElementById("callee_returnvalue"),
+      document.getElementById("_callee_returnvalue"),
+    ]);
+
+    // var callee_returnaddress = ;
+    assignMouseOverAndOut([
+      document.getElementById("callee_returnaddress"),
+      document.getElementById("_callee_returnaddress"),
+    ]);
+
+    // var callee_moving_sp = ;
+    assignMouseOverAndOut([
+      document.getElementById("callee_moving_sp"),
+      document.getElementById("_callee_moving_sp"),
+    ]);
+    // CALL SEQUENCE: CALLEE SAVE ----------------------------------------------------------------------
+
+    // PROLOGUE & EPILOGUE: CALLER SAVE ----------------------------------------------------------------
+    // var callr_label = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_label"),
+      document.getElementById("_callr_label"),
+    ]);
+
+    // var callr_input = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_input"),
+      document.getElementById("_callr_input"),
+    ]);
+
+    // var callr_stackframe = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_stackframe"),
+      document.getElementById("_callr_stackframe"),
+    ]);
+
+    // var callr_logic = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_logic"),
+      document.getElementById("_callr_logic"),
+    ]);
+
+    // var callr_return = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_return"),
+      document.getElementById("_callr_return"),
+    ]);
+
+    // var callr_returnaddr = ;
+    assignMouseOverAndOut([
+      document.getElementById("callr_returnaddr"),
+      document.getElementById("_callr_returnaddr"),
+    ]);
+    // PROLOGUE & EPILOGUE: CALLER SAVE ----------------------------------------------------------------
+
+    // PROLOGUE & EPILOGUE: CALLEE SAVE ----------------------------------------------------------------
+    // var calle_label = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_label"),
+      document.getElementById("_calle_label"),
+    ]);
+
+    // var calle_regalloc = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_regalloc"),
+      document.getElementById("_calle_regalloc"),
+    ]);
+
+    // var calle_registers = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_registers"),
+      document.getElementById("_calle_registers"),
+    ]);
+
+    // var calle_params = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_params"),
+      document.getElementById("_calle_params"),
+    ]);
+
+    // var calle_stackframe = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_stackframe"),
+      document.getElementById("_calle_stackframe"),
+    ]);
+
+    // var calle_logic = ;
+    assignMouseOverAndOut([
+      document.getElementById("calle_logic"),
+      document.getElementById("_calle_logic"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("calle_return"),
+      document.getElementById("_calle_return"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("calle_returnaddr"),
+      document.getElementById("_calle_returnaddr"),
+    ]);
+    // PROLOGUE & EPILOGUE: CALLEE SAVE ----------------------------------------------------------------
+
+    // FULL EXAMPLE: MAIN FUNCTION ---------------------------------------------------------------------
+    assignMouseOverAndOut([
+      document.getElementById("main_header"),
+      document.getElementById("_main_header"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_input1"),
+      document.getElementById("_main_input1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_input2"),
+      document.getElementById("_main_input2"),
+    ]);
+
+    // assignMouseOverAndOut([
+    //   document.getElementById("main_call"),
+    //   document.getElementById("_main_call"),
+    // ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_result"),
+      document.getElementById("_main_result"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_dispatch"),
+      document.getElementById("_main_dispatch"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_params"),
+      document.getElementById("_main_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_saving_registers"),
+      document.getElementById("_main_saving_registers"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_moving_sp"),
+      document.getElementById("_main_moving_sp"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("main_returnaddress"),
+      document.getElementById("_main_returnaddress"),
+    ]);
+    // FULL EXAMPLE: MAIN FUNCTION ---------------------------------------------------------------------
+
+    // FULL EXAMPLE: HELPER FUNCTION -------------------------------------------------------------------
+    assignMouseOverAndOut([
+      document.getElementById("subtract_header"),
+      document.getElementById("_subtract_header"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_param1"),
+      document.getElementById("_subtract_param1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_param2"),
+      document.getElementById("_subtract_param2"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_stackframe"),
+      document.getElementById("_subtract_stackframe"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_localvar"),
+      document.getElementById("_subtract_localvar"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_body_code"),
+      document.getElementById("_subtract_body_code"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("subtract_return"),
+      document.getElementById("_subtract_return"),
+    ]);
+    // FULL EXAMPLE: HELPER FUNCTION -------------------------------------------------------------------
+
+    // FULL EXAMPLE: ITERATIVE EUCLID FUNCTION -------------------------------------------------------------------
+    assignMouseOverAndOut([
+      document.getElementById("euclid_header"),
+      document.getElementById("_euclid_header"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_paramA"),
+      document.getElementById("_euclid_paramA"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_paramB"),
+      document.getElementById("_euclid_paramB"),
+    ]);
+
+    // assignMouseOverAndOut([
+    //   document.getElementById("euclid_stackframe"),
+    //   document.getElementById("")
+    // ])
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_localvar"),
+      document.getElementById("_euclid_localvar"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if1"),
+      document.getElementById("_euclid_if1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if1_t6"),
+      document.getElementById("_euclid_if1_t6"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if1_return"),
+      document.getElementById("_euclid_if1_return"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else1"),
+      document.getElementById("_euclid_else1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_while"),
+      document.getElementById("_euclid_while"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if2"),
+      document.getElementById("_euclid_if2"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if2_assign"),
+      document.getElementById("_euclid_if2_assign"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if2_register"),
+      document.getElementById("_euclid_if2_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if2_call"),
+      document.getElementById("_euclid_if2_call"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_if2_call_params"),
+      document.getElementById("_euclid_if2_call_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else2"),
+      document.getElementById("_euclid_else2"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else2_register"),
+      document.getElementById("_euclid_else2_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else2_assign"),
+      document.getElementById("_euclid_else2_assign"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else2_call"),
+      document.getElementById("_euclid_else2_call"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else2_call_params"),
+      document.getElementById("_euclid_else2_call_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else1_assign"),
+      document.getElementById("_euclid_else1_assign"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("euclid_else1_return"),
+      document.getElementById("_euclid_else1_return"),
+    ]);
+    // FULL EXAMPLE: ITERATIVE EUCLID FUNCTION -------------------------------------------------------------------
+
+    // FULL EXAMPLE: RECURSIVE EUCLID FUNCTION -------------------------------------------------------------------
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_header"),
+      document.getElementById("_reuclid_header"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_paramA"),
+      document.getElementById("_reuclid_paramA"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_paramB"),
+      document.getElementById("_reuclid_paramB"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_localvar"),
+      document.getElementById("_reuclid_localvar"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if1"),
+      document.getElementById("_reuclid_if1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if1_t6"),
+      document.getElementById("_reuclid_if1_t6"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if1_return"),
+      document.getElementById("_reuclid_if1_return"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else1"),
+      document.getElementById("_reuclid_else1"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_while"),
+      document.getElementById("_reuclid_while"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2"),
+      document.getElementById("_reuclid_if2"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_sub_register"),
+      document.getElementById("_reuclid_if2_sub_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_assign_sub"),
+      document.getElementById("_reuclid_if2_assign_sub"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_sub"),
+      document.getElementById("_reuclid_if2_sub"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_sub_params"),
+      document.getElementById("_reuclid_if2_sub_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_euclid_register"),
+      document.getElementById("_reuclid_if2_euclid_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_euclid_vars"),
+      document.getElementById("_reuclid_if2_euclid_vars"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_assign_euclid"),
+      document.getElementById("_reuclid_if2_assign_euclid"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_euclid"),
+      document.getElementById("_reuclid_if2_euclid"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_if2_euclid_params"),
+      document.getElementById("_reuclid_if2_euclid_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2"),
+      document.getElementById("_reuclid_else2"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_sub_register"),
+      document.getElementById("_reuclid_else2_sub_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_assign_sub"),
+      document.getElementById("_reuclid_else2_assign_sub"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_sub"),
+      document.getElementById("_reuclid_else2_sub"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_sub_params"),
+      document.getElementById("_reuclid_else2_sub_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_euclid_register"),
+      document.getElementById("_reuclid_else2_euclid_register"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_euclid_vars"),
+      document.getElementById("_reuclid_else2_euclid_vars"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_assign_euclid"),
+      document.getElementById("_reuclid_else2_assign_euclid"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_euclid"),
+      document.getElementById("_reuclid_else2_euclid"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else2_euclid_params"),
+      document.getElementById("_reuclid_else2_euclid_params"),
+    ]);
+
+    assignMouseOverAndOut([
+      document.getElementById("reuclid_else1_return"),
+      document.getElementById("_reuclid_else1_return"),
+    ]);
+    // FULL EXAMPLE: RECURSIVE EUCLID FUNCTION -------------------------------------------------------------------
+
+    function assignMouseOverAndOut(elementids) {
+      elementids[0].onmouseover = function () {
+        elementids.forEach((element) => {
+          element.style.backgroundColor = highlighted[0];
+          element.style.color = highlighted[1];
+        });
+      };
+      elementids[1].onmouseover = function () {
+        elementids.forEach((element) => {
+          element.style.backgroundColor = highlighted[0];
+          element.style.color = highlighted[1];
+        });
+      };
+      elementids[0].onmouseout = function () {
+        elementids.forEach((element) => {
+          element.style.backgroundColor = unhighlighted[0];
+          element.style.color = unhighlighted[1];
+        });
+      };
+      elementids[1].onmouseout = function () {
+        elementids.forEach((element) => {
+          element.style.backgroundColor = unhighlighted[0];
+          element.style.color = unhighlighted[1];
+        });
+      };
+    }
+
+    // ASSIGNABLE VARIABLE COLOURS
+
+    const classes_and_colours = [
+      ["var_v0", "grey"],
+      ["var_v1", "orange"],
+      ["var_v2", "purple"],
+      ["var_v3", "red"],
+      ["var_v4", "blue"],
+      ["var_v5", "green"],
+      ["var_v6", "DarkKhaki"],
+      ["var_v7", "deeppink"],
+      ["var_v8", "teal"],
+    ];
+
+    const colour_switch = document.getElementById("colour_switch");
+    // switched = false;
+    colour_switch.addEventListener("sl-input", (event) => {
+      enableColourCode(event.target.checked);
+    });
+
+    function enableColourCode(switch_checked) {
+      classes_and_colours.forEach((pair) => {
+        colourCodeVars(pair[0], switch_checked ? pair[1] : "transparent");
+      });
+    }
+
+    function colourCodeVars(classname, colour) {
+      elems = document.getElementsByClassName(classname);
+
+      for (let i = 0; i < elems.length; i++) {
+        elems[i].style.backgroundColor = colour;
+      }
+    }
+  </script>
+</html>
