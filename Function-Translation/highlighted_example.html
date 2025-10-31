@@ -1220,12 +1220,6 @@
               >&nbsp;&nbsp;<span id="reuclid_else1">else</span></span
             >
             <span class="line">&nbsp;&nbsp;{</span>
-            <!-- <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_while"
-                >while ( <span class="var_v7">paramB</span> != 0 )</span
-              ></span
-            >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span> -->
             <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if2"
                 >if ( <span class="var_v6">paramA</span> >
@@ -1289,7 +1283,6 @@
               ) ; // recursive call</span
             >
             <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
-            <!-- <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span> -->
             <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else1_return"
                 >return <span class="var_v8">localVar</span></span
@@ -1346,7 +1339,6 @@
               >
               <br />
             </span>
-            <!-- TODO: real values for framesize? -->
 
             <span id="_reuclid_if1_return">
               <span class="line">&nbsp;SP := SP + framesize</span> <br />
@@ -1360,19 +1352,6 @@
             <span class="line">GOTO L3</span>
 
             <span id="_reuclid_else1" class="line">LABEL L2</span>
-
-            <!-- <span id="_reuclid_while">
-              <span class="line">&nbsp;LABEL L4</span> <br />
-              <span class="line"
-                >&nbsp;t7 := <span class="var_v7">v7</span></span
-              >
-              <br />
-              <span class="line">&nbsp;t8 := 0</span> <br />
-              <span class="line">&nbsp;IF t7 != t8</span> <br />
-              <span class="line">&nbsp;THEN L5</span> <br />
-              <span class="line">&nbsp;ELSE L6</span> <br />
-              <span class="line">&nbsp;LABEL L5</span> <br />
-            </span> -->
 
             <span id="_reuclid_if2">
               <span class="line"
@@ -1431,7 +1410,6 @@
             >
             <br />
             <!-- // recursive function call -->
-            <!-- saving variables and registers should be accounted for in framesize? TODO: check that -->
             <span id="reuclid_if2_euclid_register">
               <span class="line">&nbsp;&nbsp;M[SP] := R0</span> <br />
               <span class="line">&nbsp;&nbsp;...</span> <br />
@@ -1640,8 +1618,6 @@
               <br />
               <span class="line">&nbsp;GOTO returnaddress</span> <br />
             </span>
-            <!-- <span class="line">&nbsp;GOTO L4</span>
-            <span class="line">&nbsp;LABEL L6</span> -->
             <span class="line">LABEL L3</span>
           </div>
         </sl-split-panel>
