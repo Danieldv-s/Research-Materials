@@ -897,7 +897,7 @@
             <span class="line">&nbsp;&nbsp;{</span>
             <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;<span id="euclid_if1_t6"
-                ><span class="var_v8">localVar</span> =
+                ><span class="var_v8">localVar</span> :=
                 <span class="var_v7">paramB</span></span
               >
               ;</span
@@ -961,7 +961,7 @@
             <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 id="euclid_else1_assign"
-                ><span class="var_v8"></span> :=
+                ><span class="var_v8">localvar</span> :=
                 <span class="var_v6">paramA</span></span
               >
               ;</span
@@ -1220,25 +1220,25 @@
               >&nbsp;&nbsp;<span id="reuclid_else1">else</span></span
             >
             <span class="line">&nbsp;&nbsp;{</span>
-            <span class="line"
+            <!-- <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_while"
                 >while ( <span class="var_v7">paramB</span> != 0 )</span
               ></span
             >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span> -->
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if2"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_if2"
                 >if ( <span class="var_v6">paramA</span> >
                 <span class="var_v7">paramB</span> )</span
               ></span
             >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span>
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 id="reuclid_if2_assign_sub"
                 ><span class="var_v8">localVar</span></span
               >
-              = <span id="reuclid_if2_sub">subtract</span> (
+              := <span id="reuclid_if2_sub">subtract</span> (
               <span id="reuclid_if2_sub_params"
                 ><span class="var_v6">paramA</span> ,
                 <span class="var_v7">paramB</span></span
@@ -1246,30 +1246,30 @@
               ) ;</span
             >
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 id="reuclid_if2_assign_euclid"
                 ><span class="var_v8">localVar</span></span
               >
-              = <span id="reuclid_if2_euclid">euclid</span> (
+              := <span id="reuclid_if2_euclid">euclid</span> (
               <span id="reuclid_if2_euclid_params"
                 ><span class="var_v8">localVar</span> ,
                 <span class="var_v7">paramB</span></span
               >
               ) ; // recursive call</span
             >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else2"
+              >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else2"
                 >else</span
               ></span
             >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;{</span>
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 id="reuclid_else2_assign_sub"
                 ><span class="var_v8">localVar</span></span
               >
-              = <span id="reuclid_else2_sub">subtract</span> (
+              := <span id="reuclid_else2_sub">subtract</span> (
               <span id="reuclid_else2_sub_params"
                 ><span class="var_v7">paramB</span> ,
                 <span class="var_v6">paramA</span></span
@@ -1277,19 +1277,19 @@
               ) ;</span
             >
             <span class="line"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 id="reuclid_else2_assign_euclid"
                 ><span class="var_v8">localvar</span></span
               >
-              = <span id="reuclid_else2_euclid">euclid</span> (
+              := <span id="reuclid_else2_euclid">euclid</span> (
               <span id="reuclid_else2_euclid_params"
                 ><span class="var_v6">paramA</span> ,
                 <span class="var_v8">localVar</span></span
               >
               ) ; // recursive call</span
             >
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
             <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <!-- <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span> -->
             <span class="line"
               >&nbsp;&nbsp;&nbsp;&nbsp;<span id="reuclid_else1_return"
                 >return <span class="var_v8">localVar</span></span
@@ -1361,7 +1361,7 @@
 
             <span id="_reuclid_else1" class="line">LABEL L2</span>
 
-            <span id="_reuclid_while">
+            <!-- <span id="_reuclid_while">
               <span class="line">&nbsp;LABEL L4</span> <br />
               <span class="line"
                 >&nbsp;t7 := <span class="var_v7">v7</span></span
@@ -1372,281 +1372,280 @@
               <span class="line">&nbsp;THEN L5</span> <br />
               <span class="line">&nbsp;ELSE L6</span> <br />
               <span class="line">&nbsp;LABEL L5</span> <br />
-            </span>
+            </span> -->
 
             <span id="_reuclid_if2">
               <span class="line"
-                >&nbsp;&nbsp;t9 := <span class="var_v6">v6</span></span
+                >&nbsp;t7 := <span class="var_v6">v6</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;t10 := <span class="var_v7">v7</span></span
+                >&nbsp;t8 := <span class="var_v7">v7</span></span
               >
               <br />
-              <span class="line">&nbsp;&nbsp;IF t9 > t10</span> <br />
-              <span class="line">&nbsp;&nbsp;THEN L7</span> <br />
-              <span class="line">&nbsp;&nbsp;ELSE L8</span> <br />
+              <span class="line">&nbsp;IF t7 > t8</span> <br />
+              <span class="line">&nbsp;THEN L4</span> <br />
+              <span class="line">&nbsp;ELSE L5</span> <br />
 
-              <span class="line">&nbsp;&nbsp;LABEL L7</span> <br />
+              <span class="line">&nbsp;LABEL L4</span> <br />
             </span>
 
             <span id="reuclid_if2_sub_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
               <br />
             </span>
 
             <span id="_reuclid_if2_sub_params">
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP - SOI * 3</span>
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                >&nbsp;&nbsp;M[SP + SOI] :=
                 <span class="var_v6">v6</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                >&nbsp;&nbsp;M[SP + SOI * 2] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
             </span>
             <span id="_reuclid_if2_sub">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L10</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L10</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;t11 := M[SP + SOI]</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := L7</span> <br />
+              <span class="line">&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;LABEL L7</span> <br />
+              <span class="line">&nbsp;&nbsp;t9 := M[SP + SOI]</span>
               <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP + SOI * 3</span>
               <br />
             </span>
             <span id="_reuclid_if2_sub_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <span class="line">&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
               <br />
             </span>
             <span id="_reuclid_if2_assign_sub" class="line"
-              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t11</span
+              >&nbsp;&nbsp;<span class="var_v8">v8</span> := t9</span
             >
             <br />
             <!-- // recursive function call -->
             <!-- saving variables and registers should be accounted for in framesize? TODO: check that -->
             <span id="reuclid_if2_euclid_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
               <br />
             </span>
 
             <span id="reuclid_if2_euclid_vars">
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
                 <span class="var_v6">v6</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
                 <span class="var_v8">v8</span></span
               >
               <br />
             </span>
 
             <span id="_reuclid_if2_euclid_params">
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP - SOI * 3</span>
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                >&nbsp;&nbsp;M[SP + SOI] :=
                 <span class="var_v8">v8</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                >&nbsp;&nbsp;M[SP + SOI * 2] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
             </span>
 
             <span id="_reuclid_if2_euclid">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L11</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;GOTO euclid</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L11</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;t12 := M[SP + SOI]</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := L8</span> <br />
+              <span class="line">&nbsp;&nbsp;GOTO euclid</span> <br />
+              <span class="line">&nbsp;&nbsp;LABEL L8</span> <br />
+              <span class="line">&nbsp;&nbsp;t10 := M[SP + SOI]</span>
               <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP + SOI * 3</span>
               <br />
             </span>
 
             <span id="_reuclid_if2_euclid_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <span class="line">&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
               <br />
             </span>
 
             <span id="_reuclid_if2_euclid_vars">
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
                 * (k + 1)]</span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
                 * (k + 2)]</span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
                 * (k + 3)]</span
               >
               <br />
             </span>
 
             <span id="_reuclid_if2_assign_euclid" class="line"
-              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t12</span
+              >&nbsp;&nbsp;<span class="var_v8">v8</span> := t10</span
             >
-            <span class="line">&nbsp;&nbsp;GOTO L9</span>
-            <span id="_reuclid_else2" class="line">&nbsp;&nbsp;LABEL L8</span>
+            <span class="line">&nbsp;GOTO L6</span>
+            <span id="_reuclid_else2" class="line">&nbsp;&nbsp;LABEL L5</span>
 
             <span id="reuclid_else2_sub_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
               <br />
             </span>
             <span id="_reuclid_else2_sub_params">
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP - SOI * 3</span>
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                >&nbsp;&nbsp;M[SP + SOI] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                >&nbsp;&nbsp;M[SP + SOI * 2] :=
                 <span class="var_v6">v6</span></span
               >
               <br />
             </span>
             <span id="_reuclid_else2_sub">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L12</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;GOTO subtract</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L12</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;t13 := M[SP + SOI]</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := L9</span> <br />
+              <span class="line">&nbsp;&nbsp;GOTO subtract</span> <br />
+              <span class="line">&nbsp;&nbsp;LABEL L9</span> <br />
+              <span class="line">&nbsp;&nbsp;t11 := M[SP + SOI]</span>
               <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP + SOI * 3</span>
               <br />
             </span>
             <span id="_reuclid_else2_sub_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <span class="line">&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
               <br />
             </span>
             <span id="_reuclid_else2_assign_sub" class="line"
-              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t13</span
+              >&nbsp;&nbsp;<span class="var_v8">v8</span> := t11</span
             >
             <br />
             <!-- // recursive function call -->
             <span id="reuclid_else2_euclid_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := R0</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := R0</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;M[SP + SOI * k] := Rk</span>
               <br />
             </span>
 
             <span id="reuclid_else2_euclid_vars">
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 1)] :=
                 <span class="var_v6">v6</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 2)] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
+                >&nbsp;&nbsp;M[SP + SOI * (k + 3)] :=
                 <span class="var_v8">v8</span></span
               >
               <br />
             </span>
 
             <span id="_reuclid_else2_euclid_params">
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP - SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP - SOI * 3</span>
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI] :=
+                >&nbsp;&nbsp;M[SP + SOI] :=
                 <span class="var_v8">v8</span></span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;M[SP + SOI * 2] :=
+                >&nbsp;&nbsp;M[SP + SOI * 2] :=
                 <span class="var_v7">v7</span></span
               >
               <br />
             </span>
             <span id="_reuclid_else2_euclid">
-              <span class="line">&nbsp;&nbsp;&nbsp;M[SP] := L13</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;GOTO euclid</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;LABEL L13</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;t14 := M[SP + SOI]</span>
+              <span class="line">&nbsp;&nbsp;M[SP] := L10</span> <br />
+              <span class="line">&nbsp;&nbsp;GOTO euclid</span> <br />
+              <span class="line">&nbsp;&nbsp;LABEL L10</span> <br />
+              <span class="line">&nbsp;&nbsp;t12 := M[SP + SOI]</span>
               <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;SP := SP + SOI * 3</span>
+              <span class="line">&nbsp;&nbsp;SP := SP + SOI * 3</span>
               <br />
             </span>
 
             <span id="_reuclid_else2_euclid_register">
-              <span class="line">&nbsp;&nbsp;&nbsp;R0 := M[SP]</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;...</span> <br />
-              <span class="line">&nbsp;&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
+              <span class="line">&nbsp;&nbsp;R0 := M[SP]</span> <br />
+              <span class="line">&nbsp;&nbsp;...</span> <br />
+              <span class="line">&nbsp;&nbsp;Rk := M[SP + SOI * k]</span>
               <br />
             </span>
             <span id="_reuclid_else2_euclid_vars">
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v6">v6</span> := M[SP + SOI
                 * (k + 1)]</span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v7">v7</span> := M[SP + SOI
                 * (k + 2)]</span
               >
               <br />
               <span class="line"
-                >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
+                >&nbsp;&nbsp;<span class="var_v8">v8</span> := M[SP + SOI
                 * (k + 3)]</span
               >
               <br />
             </span>
 
             <span id="_reuclid_else2_assign_euclid" class="line"
-              >&nbsp;&nbsp;&nbsp;<span class="var_v8">v8</span> := t14</span
+              >&nbsp;&nbsp;<span class="var_v8">v8</span> := t12</span
             >
-            <span class="line">&nbsp;&nbsp;LABEL L9</span>
+            <span class="line">&nbsp;LABEL L6</span>
             <span id="_reuclid_else1_return">
-              <span class="line">&nbsp;&nbsp;SP := SP + framesize</span> <br />
+              <span class="line">&nbsp;SP := SP + framesize</span> <br />
               <span class="line"
-                >&nbsp;&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
+                >&nbsp;M[SP + SOI] := <span class="var_v8">v8</span></span
               >
               <br />
-              <span class="line">&nbsp;&nbsp;returnaddress := M[SP]</span>
+              <span class="line">&nbsp;returnaddress := M[SP]</span>
               <br />
-              <span class="line">&nbsp;&nbsp;GOTO returnaddress</span> <br />
+              <span class="line">&nbsp;GOTO returnaddress</span> <br />
             </span>
-            <span class="line">&nbsp;GOTO L4</span>
-            <span class="line">&nbsp;LABEL L6</span>
+            <!-- <span class="line">&nbsp;GOTO L4</span>
+            <span class="line">&nbsp;LABEL L6</span> -->
             <span class="line">LABEL L3</span>
           </div>
         </sl-split-panel>
         <sl-divider></sl-divider>
-        <!-- TODO: perhaps colour code these and where they are used in the examples -->
         <h2>Symbol Table</h2>
         <div style="width: 100%; align-items: center; justify-items: center">
           <table style="width: 50%; text-align: center">
@@ -1656,48 +1655,48 @@
               <td><b>Function scope</b></td>
             </tr>
             <tr>
-              <td>v0</td>
-              <td>input1</td>
+              <td class="var_v0">v0</td>
+              <td class="var_v0">input1</td>
               <td>main</td>
             </tr>
             <tr>
-              <td>v1</td>
-              <td>input2</td>
+              <td class="var_v1">v1</td>
+              <td class="var_v1">input2</td>
               <td>main</td>
             </tr>
             <tr>
-              <td>v2</td>
-              <td>result</td>
+              <td class="var_v2">v2</td>
+              <td class="var_v2">result</td>
               <td>main</td>
             </tr>
             <tr>
-              <td>v3</td>
-              <td>param1</td>
+              <td class="var_v3">v3</td>
+              <td class="var_v3">param1</td>
               <td>subtract</td>
             </tr>
             <tr>
-              <td>v4</td>
-              <td>param2</td>
+              <td class="var_v4">v4</td>
+              <td class="var_v4">param2</td>
               <td>subtract</td>
             </tr>
             <tr>
-              <td>v5</td>
-              <td>localVar</td>
+              <td class="var_v5">v5</td>
+              <td class="var_v5">localVar</td>
               <td>subtract</td>
             </tr>
             <tr>
-              <td>v6</td>
-              <td>paramA</td>
+              <td class="var_v6">v6</td>
+              <td class="var_v6">paramA</td>
               <td>euclid</td>
             </tr>
             <tr>
-              <td>v7</td>
-              <td>paramB</td>
+              <td class="var_v7">v7</td>
+              <td class="var_v7">paramB</td>
               <td>euclid</td>
             </tr>
             <tr>
-              <td>v8</td>
-              <td>localVar</td>
+              <td class="var_v8">v8</td>
+              <td class="var_v8">localVar</td>
               <td>euclid</td>
             </tr>
           </table>
@@ -2116,10 +2115,10 @@
       document.getElementById("_reuclid_else1"),
     ]);
 
-    assignMouseOverAndOut([
-      document.getElementById("reuclid_while"),
-      document.getElementById("_reuclid_while"),
-    ]);
+    // assignMouseOverAndOut([
+    //   document.getElementById("reuclid_while"),
+    //   document.getElementById("_reuclid_while"),
+    // ]);
 
     assignMouseOverAndOut([
       document.getElementById("reuclid_if2"),
